@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spotify Socials — AI-Powered Social Music Discovery | Case Study & Prototype</title>
+<meta name="description" content="Product case study: How Spotify can leverage its social graph and listening data for AI-powered music discovery. Includes working prototype with Claude API.">
+<meta property="og:title" content="Spotify Socials × AI — Case Study & Prototype">
+<meta property="og:description" content="AI-powered social music discovery for Spotify. Full PM case study with working prototype.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/*
+  SPOTIFY SOCIALS — AI-Powered Social Music Discovery
+  
+  A product case study solving: How can Spotify leverage its social graph 
+  and listening data to drive music discovery and engagement?
+  
+  Structure follows standard PM framework:
+  Problem → Segments → Pains → Solutions → Prioritize → Validate → Measure
+*/
+
+// ═══════════════════════════════════════════
+//  ALL CASE STUDY CONTENT
+// ═══════════════════════════════════════════
+
+const PROBLEM = {
+  headline: "Spotify sits on the richest music behavior dataset in the world — but users discover music through Instagram DMs and YouTube rabbit holes.",
+  statement: "How might we turn Spotify's social graph and listening data into a music discovery engine powered by friends — not just algorithms?",
+  context: "Social discovery is how people learn about music through their network — what friends love, what's trending in their circle, what's new in genres they care about. Today, Spotify's social features are limited to a 'Find Friends' list and sharing links to external apps.",
+  issues: [
+    { point: "Dead social graph", detail: "Users add friends via Facebook but can't interact with them. A friend's profile shows recently played artists and playlists — not what they actually love or what you'd enjoy from their taste." },
+    { point: "Recommendation fatigue", detail: "Algorithm serves variations of what you already listen to. 65% of surveyed users said they end up repeating songs from last session. Users leave to YouTube and Google to find something new — ending the Spotify session early." },
+    { point: "Music sharing lives outside Spotify", detail: "The only way to share is via Instagram/WhatsApp — platforms built for photos and video. Music gets buried. There's no feedback loop back to Spotify. 70% of users said they prefer social media for photos/videos over sharing music." },
+    { point: "High acquisition cost, low stickiness", detail: "Without social hooks, Spotify competes purely on catalog and algorithm — both easily matched by Apple Music, YouTube Music, and regional players." },
+  ],
+  value: {
+    customer: [
+      "Discover songs from people they trust, not just cold algorithms",
+      "Understand friends' taste before sharing — reduces social friction",
+      "Spend less time searching across platforms for new music",
+      "Deeper connection with friends through shared musical identity",
+    ],
+    business: [
+      "Social features create switching costs competitors can't copy (network effect)",
+      "Increased session length → more ad impressions → higher ARPU",
+      "Friend-driven discovery → higher conversion to premium (LTV increase)",
+      "Reduced dependency on external platforms for music sharing",
+    ],
+  },
+  goal: { primary: "Engagement", secondary: "Social Discovery", outcome: "DAU & Session Length" },
+};
+
+const MARKET = {
+  funnel: [
+    { label: "India Population", val: "1.3B", sub: "" },
+    { label: "Urban (30%)", val: "400M", sub: "" },
+    { label: "Gen Z 16–24 (15%)", val: "18M", sub: "Core social segment" },
+    { label: "Music Streaming (95%)", val: "16M", sub: "Addressable market" },
+  ],
+  platform: { users: "140M+", note: "Existing social graph to leverage — no cold start problem" },
+};
+
+const SEGMENTS = [
+  {
+    name: "The Identity Builder", age: "18–22", icon: "🎓", role: "College Student",
+    color: "#E91E9B",
+    who: "Music is identity. She attends shows, hunts for undiscovered artists, and wants her friends to know her taste is ahead of the curve. Shares music as self-expression — not just entertainment.",
+    goals: ["Project musical identity to her social circle", "Discover artists before they go mainstream", "Create shared musical moments with friends"],
+    needs: ["A way to showcase and share discoveries within Spotify", "See what's trending in her friend circle, not Billboard", "Quick way to add friend-recommended songs to her library"],
+    frustrations: [
+      { pain: "No way to share discoveries — friends miss what she finds", severity: "Critical", freq: "Daily" },
+      { pain: "Can't see friends' actual taste — only recently played (often misleading)", severity: "High", freq: "Weekly" },
+      { pain: "Spends 20+ min on Google/YouTube to find new music outside Spotify", severity: "Medium", freq: "Weekly" },
+    ],
+  },
+  {
+    name: "The Time-Starved Listener", age: "23–30", icon: "💼", role: "Working Professional",
+    color: "#2563EB",
+    who: "Music is a stress-buster. Listens on commute, while working, on weekends. Loves exploring but has no time to hunt. Trusts friends' taste more than algorithms. Values efficiency — wants good music with zero effort.",
+    goals: ["Effortless music that fits mood and moment", "Stay connected with friends through shared taste", "Break out of the repeat-listening cycle"],
+    needs: ["Friend-curated recommendations delivered without asking", "Quick-consume format — can't spend time browsing", "Better daily mix that isn't just yesterday's songs again"],
+    frustrations: [
+      { pain: "Same songs on repeat — algorithm doesn't surface anything new", severity: "Critical", freq: "Daily" },
+      { pain: "Friends share songs on WhatsApp — links get lost in chat clutter", severity: "High", freq: "Weekly" },
+      { pain: "No interactive way to discuss or react to music with friends", severity: "Medium", freq: "Monthly" },
+    ],
+  },
+  {
+    name: "The Passive Explorer", age: "25–40", icon: "🎧", role: "Various",
+    color: "#D97706",
+    who: "Doesn't seek music but loves when it finds them. Listens while cooking, commuting, working out. Appreciates friend recommendations but never asks for them. The person who says 'oh I love this song — who showed me this?'",
+    goals: ["Good background music without effort", "Not feel out of the loop when friends discuss music", "Discover through osmosis, not active searching"],
+    needs: ["Zero-effort discovery from trusted sources", "Passive feed of what similar-taste people enjoy", "One-tap save when something resonates"],
+    frustrations: [
+      { pain: "Stuck in a genre bubble — algorithm reinforces existing taste", severity: "High", freq: "Daily" },
+      { pain: "No passive way to absorb friends' discoveries", severity: "Medium", freq: "Weekly" },
+      { pain: "Misses good music because it was shared on IG story and disappeared", severity: "Medium", freq: "Weekly" },
+    ],
+  },
+];
+
+const SEG_PRIORITY = {
+  winner: 0,
+  why: [
+    "Highest pain frequency — daily interaction desire (70% from survey want to interact about music)",
+    "Content creator — she'll generate stories that drive the network effect flywheel for other segments",
+    "Identity motivation — strongest sharing drive (people share to project who they are)",
+    "Gen Z is Spotify's growth engine — retention here drives long-term LTV",
+    "Post-pandemic social desire — strongest in this age group, wanting to reconnect through shared interests",
+  ],
+};
+
+const PAINS = [
+  { pain: "No way to share/receive music discoveries within Spotify", impact: 5, freq: 5, solve: 4, score: 100 },
+  { pain: "Can't understand friends' actual taste — profile shows misleading data", impact: 4, freq: 4, solve: 5, score: 80 },
+  { pain: "Algorithm bubble — same genres, no new discovery, session ends early", impact: 4, freq: 5, solve: 4, score: 80 },
+  { pain: "Music shared on WhatsApp/IG gets lost — no feedback loop to Spotify", impact: 3, freq: 4, solve: 4, score: 48 },
+  { pain: "Excessive web surfing on YouTube/Google to discover new music", impact: 3, freq: 5, solve: 3, score: 45 },
+];
+
+const SOLUTIONS = [
+  {
+    name: "Soundbite Stories", icon: "🎵", winner: true, score: "100%",
+    what: "30-second audio clips — Soundbites — of the best part of a song, shared as stories that last 24 hours. The system auto-detects the most engaging segment (the hook, the drop, the bridge) so sharing takes one tap. Feed is ranked by taste similarity, not just recency — so every story you see is relevant to you.",
+    how: [
+      "Tap story icon → search for a song",
+      "System highlights the recommended 30-sec clip (user can adjust)",
+      "Add optional caption → publish as story",
+      "Friends see stories ranked by Taste Match score",
+      "React with emoji, add to playlist in one tap, or share forward",
+    ],
+    results: [
+      "Low-effort sharing drives content creation volume",
+      "24hr expiry creates urgency — more frequent engagement",
+      "Audio-first format keeps users IN Spotify (vs. leaving for IG)",
+      "Taste-ranked feed means high relevance — low skip rate",
+      "Each story = potential stream → direct Spotify revenue impact",
+    ],
+    rice: {
+      reach: { val: "100%", why: "Stories visible to all followers. Smaller networks = higher per-story visibility." },
+      impact: { val: "High", why: "Quick consumption, auto-clip selection removes friction, audio-native format." },
+      confidence: { val: "High", why: "Validated via landing page (24.36% conversion). 90% of survey said they'd use social features." },
+      effort: { val: "Medium", why: "Extends existing profile + player. Audio clip engine, feed ranking, reaction system." },
+    },
+  },
+  {
+    name: "Taste Profile Feed", icon: "📝", winner: false, score: "21.3%",
+    what: "Permanent posts with captions, lyrics, comments, and hashtags. Content lives forever on profile. More curated but higher effort to create and consume.",
+    how: [],
+    results: [
+      "High-quality content but lower creation volume",
+      "Hashtags enable discovery beyond network",
+      "Risk of feed feeling spammy if content quality varies",
+    ],
+    rice: {
+      reach: { val: "80%", why: "Posts get lost with many followings. Reach depends on follower count." },
+      impact: { val: "Medium", why: "Feels like spamming if user doesn't enjoy feed content." },
+      confidence: { val: "Medium", why: "Unproven format for music — works for photos, uncertain for audio." },
+      effort: { val: "High", why: "Full infra from scratch — feeds, ranking, moderation, content system." },
+    },
+  },
+  {
+    name: "Music Messaging", icon: "💬", winner: false, score: "18%",
+    what: "1-on-1 chat with song/podcast link sharing. Messages persist. Meant to drive discussion around music.",
+    how: [],
+    results: [
+      "Deep engagement for close friends",
+      "But users already message on WhatsApp — hard to shift behavior",
+      "Low viral potential — 1:1 doesn't create network effects",
+    ],
+    rice: {
+      reach: { val: "90%", why: "High delivery but low response — users already spread across messaging apps." },
+      impact: { val: "Medium", why: "Unlikely to get traction over existing messaging habits." },
+      confidence: { val: "Low", why: "Competing with WhatsApp, iMessage, IG DMs — steep hill." },
+      effort: { val: "High", why: "Auth, contacts, notifications, database, E2E — full messaging stack." },
+    },
+  },
+];
+
+const VALIDATION = {
+  method: "Built a landing page (spotify-stories.dorik.io) showcasing the Soundbite Stories concept. Distributed via email and WhatsApp to target segment.",
+  funnel: [
+    { stage: "Leads reached", n: 378 },
+    { stage: "Visited landing page", n: 119, rate: "31.48%" },
+    { stage: "Filled interest form", n: 29, rate: "24.36%" },
+  ],
+  analytics: [
+    { l: "Users", v: "119" }, { l: "Sessions", v: "171" },
+    { l: "Pageviews", v: "542" }, { l: "Pages/Session", v: "3.17" },
+    { l: "Avg Duration", v: "3:10" }, { l: "Bounce Rate", v: "24.56%" },
+  ],
+  verdict: "24.36% opportunity-to-win conversion with 3+ min avg session and 3.17 pages/session indicates strong desirability. Users didn't just visit — they explored.",
+};
+
+const METRICS = [
+  { cat: "Adoption", goal: "Feature uptake", signal: "Users uploading & viewing stories", metric: "Avg uploads/user/week · Unique visitors per story · (Story DAUs / total logins) × 100" },
+  { cat: "Engagement", goal: "Discovery depth", signal: "Time on stories, actions taken", metric: "% adding song to playlist · % sharing forward · Avg stories watched before exit" },
+  { cat: "Retention", goal: "Repeat usage", signal: "Users returning to create", metric: "% who posted a 2nd story within 7 days · D7/D30 story retention" },
+  { cat: "Satisfaction", goal: "User happiness", signal: "Feedback loops", metric: "CSAT · NPS · Qualitative interview themes" },
+  { cat: "Task Success", goal: "Completion rate", signal: "Funnel completion", metric: "% who publish soundbite after entering story flow · Drop-off at each step" },
+];
+
+const RISKS = [
+  { risk: "Users only share popular music → no new discovery", fix: "Suggested Soundbites from user's deeper listening history — 'You listened to this 12 times but never shared it' — surfaces hidden gems, not just trending tracks." },
+  { risk: "Content creation stays on Instagram/TikTok", fix: "Allow sharing Soundbites to IG/TikTok FROM Spotify — Spotify becomes the creation source, social media becomes distribution." },
+  { risk: "Low story creation volume", fix: "Auto-generated 'Your Week in Music' stories — system creates a shareable weekly highlight reel. Zero-effort content creation." },
+  { risk: "Soundbite loading latency on slow connections", fix: "Progressive loading — 15-sec preview streams immediately, full clip loads in background. Works on 3G." },
+];
+
+const WHY_NOW = [
+  "140M+ users = existing social graph with no cold-start problem",
+  "Competitors (Apple Music, YouTube Music) have no social layer — first-mover advantage",
+  "Users already leave Spotify to discover music on YouTube/Google — recapture that session",
+  "Post-pandemic desire for social connection — strongest in Gen Z target segment",
+  "Audio-first content (podcasts, voice notes) is a proven format — Soundbites extend this naturally",
+];
+
+const SURVEY = [
+  { stat: "70%", text: "want to interact about music with friends" },
+  { stat: "66%", text: "interact with friends daily/weekly about music" },
+  { stat: "90%", text: "say adding friends on Spotify is useless without interaction" },
+  { stat: "65%", text: "not satisfied with algo recommendations" },
+  { stat: "70%", text: "prefer social media for photos over music sharing" },
+];
+
+// Prototype data
+const FRIENDS = [
+  { id: 1, name: "Priya", av: "🎵", match: 87, song: "Husn — Anuv Jain", genres: ["Indie Pop", "Lo-fi"], mood: "Chill", time: "2h ago", cap: "This bridge hits different at 2am 🌙", range: "0:42 – 1:12", tag: "Matches your vibe", tc: "#1DB954", likes: 23 },
+  { id: 2, name: "Arjun", av: "🎸", match: 62, song: "Naamcheen — Seedhe Maut", genres: ["Hip Hop", "R&B"], mood: "Energy", time: "4h ago", cap: "Absolute bars, no debate 🔥", range: "0:25 – 0:55", tag: "Trending in circle", tc: "#D97706", likes: 34 },
+  { id: 3, name: "Sneha", av: "🎹", match: 45, song: "Breathless — Shankar M.", genres: ["Classical", "Jazz"], mood: "Soulful", time: "6h ago", cap: "Rainy day essential ☔", range: "1:02 – 1:32", tag: "Expand your taste", tc: "#2563EB", likes: 15 },
+  { id: 4, name: "Rohan", av: "🎧", match: 78, song: "Aaoge Tum Kabhi — TLT", genres: ["Alt Rock", "Indie"], mood: "Nostalgic", time: "8h ago", cap: "Road trip anthem 🚗", range: "0:15 – 0:45", tag: "Friends love this", tc: "#7C3AED", likes: 41 },
+];
+
+// ═══════════════════════════════════════════
+//  DESIGN SYSTEM
+// ═══════════════════════════════════════════
+const $ = {
+  g: "#1DB954", bg: "#0B0B0B", sf: "#131313", cd: "#191919",
+  bd: "#262626", t1: "#EAEAEA", t2: "#8E8E8E", t3: "#4A4A4A",
+};
+
+// ═══════════════════════════════════════════
+//  REUSABLE COMPONENTS
+// ═══════════════════════════════════════════
+const font = "'Outfit', 'DM Sans', system-ui, sans-serif";
+
+function Pill({ children, color = $.g, style: s = {} }) {
+  return <span style={{ fontSize: 10, padding: "3px 10px", borderRadius: 99, background: color + "16", color, fontWeight: 600, letterSpacing: 0.2, ...s }}>{children}</span>;
+}
+
+function Box({ children, glow, style: s = {} }) {
+  return <div style={{ background: $.cd, borderRadius: 12, padding: 18, border: `1px solid ${glow ? $.g + "30" : $.bd}`, ...s }}>{children}</div>;
+}
+
+function Heading({ tag, title, desc }) {
+  return (
+    <div style={{ marginBottom: 18 }}>
+      {tag && <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: $.g, marginBottom: 4 }}>{tag}</div>}
+      <h2 style={{ fontSize: 19, fontWeight: 800, lineHeight: 1.3, fontFamily: font }}>{title}</h2>
+      {desc && <p style={{ fontSize: 13, color: $.t2, marginTop: 5, lineHeight: 1.55, maxWidth: 580 }}>{desc}</p>}
+    </div>
+  );
+}
+
+function Ring({ pct, sz = 40 }) {
+  const r = (sz - 5) / 2, ci = 2 * Math.PI * r, off = ci - (pct / 100) * ci;
+  const col = pct >= 75 ? $.g : pct >= 50 ? "#D97706" : "#DC2626";
+  return (
+    <div style={{ position: "relative", width: sz, height: sz }}>
+      <svg width={sz} height={sz} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={sz / 2} cy={sz / 2} r={r} fill="none" stroke={$.bd} strokeWidth="2.5" />
+        <circle cx={sz / 2} cy={sz / 2} r={r} fill="none" stroke={col} strokeWidth="2.5" strokeDasharray={ci} strokeDashoffset={off} strokeLinecap="round" style={{ transition: "stroke-dashoffset 1s ease" }} />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: sz * 0.22, fontWeight: 700 }}>{pct}%</div>
+    </div>
+  );
+}
+
+function Wave() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 1.5, height: 20 }}>
+      {Array.from({ length: 28 }).map((_, i) => (
+        <div key={i} style={{ width: 2, borderRadius: 1, background: $.g, height: 3 + Math.random() * 17, opacity: 0.35 + Math.random() * 0.5 }} />
+      ))}
+    </div>
+  );
+}
+
+function Divider() {
+  return <div style={{ height: 1, background: $.bd, margin: "32px 0" }} />;
+}
+
+// ── AI Chat (Live Claude API) ──
+function AiChat() {
+  const [msgs, setMsgs] = useState([]);
+  const [inp, setInp] = useState("");
+  const [ld, setLd] = useState(false);
+  const ref = useRef(null);
+  const SYS = `You are the AI social music engine for Spotify Socials. You analyze friends' listening data and generate personalized social music insights.
+
+User: Puneet (Indie, Bollywood, Lo-fi, Hip Hop)
+Friends: Priya (87% taste match - Indie Pop, Lo-fi, Bollywood), Arjun (62% - Hip Hop, R&B, Electronic), Sneha (45% - Classical, Jazz, Acoustic), Rohan (78% - Alt Rock, Indie)
+
+Respond in 2-3 sentences. Specific artist/song names. Casual tone. No markdown.`;
+
+  const sugg = ["What are my friends discovering?", "Create a blend with Priya", "Who should I listen with today?", "Why is Sneha's match only 45%?"];
+
+  async function send(t) {
+    const um = { role: "user", content: t }, nx = [...msgs, um];
+    setMsgs(nx); setInp(""); setLd(true);
+    try {
+      const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 600, system: SYS, messages: nx.map(m => ({ role: m.role, content: m.content })) }) });
+      const d = await r.json();
+      setMsgs([...nx, { role: "assistant", content: d.content?.map(b => b.text || "").join("") || "Try again!" }]);
+    } catch { setMsgs([...nx, { role: "assistant", content: "In production, this connects to Spotify's listening API to generate real-time social insights — taste matching, trending songs in your circle, friend-to-friend discovery recommendations." }]); }
+    setLd(false);
+  }
+  useEffect(() => { ref.current && (ref.current.scrollTop = ref.current.scrollHeight); }, [msgs, ld]);
+
+  return (
+    <Box style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column", height: 400 }}>
+      <div style={{ padding: "10px 14px", borderBottom: `1px solid ${$.bd}`, display: "flex", alignItems: "center", gap: 8, background: $.g + "08" }}>
+        <div style={{ width: 26, height: 26, borderRadius: 6, background: $.g, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>🎵</div>
+        <div><div style={{ fontSize: 12, fontWeight: 700 }}>Taste Match Engine</div><div style={{ fontSize: 9, color: $.g }}>Claude API · Live</div></div>
+      </div>
+      <div ref={ref} style={{ flex: 1, overflowY: "auto", padding: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+        {msgs.length === 0 && (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 8, padding: 12 }}>
+            <div style={{ fontSize: 24 }}>🎵</div>
+            <div style={{ fontSize: 11, color: $.t2, textAlign: "center", maxWidth: 200, lineHeight: 1.45 }}>Ask about friends' taste, get social music insights</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center", maxWidth: 300 }}>
+              {sugg.map((s, i) => <button key={i} onClick={() => send(s)} style={{ background: $.sf, border: `1px solid ${$.g}12`, borderRadius: 12, padding: "4px 10px", fontSize: 10, color: $.t2, cursor: "pointer", fontFamily: font }}>{s}</button>)}
+            </div>
+          </div>
+        )}
+        {msgs.map((m, i) => <div key={i} style={{ alignSelf: m.role === "user" ? "flex-end" : "flex-start", maxWidth: "82%", background: m.role === "user" ? $.g : "#252525", color: m.role === "user" ? "#000" : $.t1, borderRadius: 10, borderBottomRightRadius: m.role === "user" ? 2 : 10, borderBottomLeftRadius: m.role === "assistant" ? 2 : 10, padding: "7px 11px", fontSize: 11, lineHeight: 1.45 }}>{m.content}</div>)}
+        {ld && <div style={{ alignSelf: "flex-start", background: "#252525", borderRadius: 10, borderBottomLeftRadius: 2, padding: "9px 12px", display: "flex", gap: 4 }}>{[0, 1, 2].map(i => <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: $.g, animation: `p ${1}s ease ${i * .15}s infinite` }} />)}</div>}
+      </div>
+      <div style={{ padding: "6px 8px", borderTop: `1px solid ${$.bd}`, display: "flex", gap: 6 }}>
+        <input value={inp} onChange={e => setInp(e.target.value)} onKeyDown={e => e.key === "Enter" && inp.trim() && send(inp.trim())} placeholder="Ask about friends' music..." style={{ flex: 1, background: "#252525", border: "none", borderRadius: 8, padding: "6px 10px", fontSize: 11, color: $.t1, outline: "none", fontFamily: font }} />
+        <button onClick={() => inp.trim() && send(inp.trim())} style={{ background: inp.trim() ? $.g : "#252525", border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: inp.trim() ? "#000" : $.t3, fontWeight: 700 }}>↑</button>
+      </div>
+    </Box>
+  );
+}
+
+// ═══════════════════════════════════════════
+//  MAIN APP
+// ═══════════════════════════════════════════
+function App() {
+  const [tab, setTab] = useState("case");
+  const [liked, setLiked] = useState({});
+
+  return (
+    <div style={{ minHeight: "100vh", background: $.bg, color: $.t1, fontFamily: font }}>
+      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+      <style>{`@keyframes p{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}} *{box-sizing:border-box;margin:0;padding:0} ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#333;border-radius:4px}`}</style>
+
+      {/* ══ HEADER ══ */}
+      <div style={{ borderBottom: `1px solid ${$.bd}`, background: `linear-gradient(180deg, ${$.g}06, transparent 70%)` }}>
+        <div style={{ maxWidth: 980, margin: "0 auto", padding: "28px 24px 18px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: $.g, boxShadow: `0 0 8px ${$.g}` }} />
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2.5, textTransform: "uppercase", color: $.g }}>Product Case Study · AI-Powered Prototype · Sharable Project</span>
+          </div>
+          <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: -0.8, marginBottom: 4 }}>Spotify Socials</h1>
+          <p style={{ fontSize: 13, color: $.t2, maxWidth: 500, lineHeight: 1.45, marginBottom: 14 }}>Turning Spotify's social graph and listening data into an AI-powered music discovery engine — driven by friends, not just algorithms.</p>
+          <div style={{ display: "flex", gap: 3, background: $.sf, borderRadius: 9, padding: 3, maxWidth: 300 }}>
+            {[{ id: "case", l: "📋 Case Study" }, { id: "proto", l: "📱 Prototype" }].map(t => (
+              <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, padding: "7px 12px", borderRadius: 7, border: "none", cursor: "pointer", fontFamily: font, background: tab === t.id ? $.cd : "transparent", color: tab === t.id ? $.t1 : $.t3, fontSize: 12, fontWeight: 600, transition: "all .15s" }}>{t.l}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 980, margin: "0 auto", padding: "24px 24px 60px" }}>
+
+        {/* ═══════════════════════════════════
+            CASE STUDY — scrollable document
+            ═══════════════════════════════════ */}
+        {tab === "case" && (<div>
+
+          {/* ── PROBLEM ── */}
+          <Heading tag="The Problem" title="Spotify has the data. Users have the desire. The connection is missing." />
+          <Box glow style={{ marginBottom: 14 }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: $.g, lineHeight: 1.45, marginBottom: 10 }}>{PROBLEM.statement}</p>
+            <p style={{ fontSize: 12, color: $.t2, lineHeight: 1.55 }}>{PROBLEM.context}</p>
+          </Box>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+            {PROBLEM.issues.map((iss, i) => (
+              <Box key={i} style={{ display: "flex", gap: 12 }}>
+                <div style={{ width: 26, height: 26, borderRadius: 6, background: "#DC262615", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#DC2626", flexShrink: 0 }}>{i + 1}</div>
+                <div><div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{iss.point}</div><div style={{ fontSize: 12, color: $.t2, lineHeight: 1.5 }}>{iss.detail}</div></div>
+              </Box>
+            ))}
+          </div>
+
+          {/* Value */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 6 }}>
+            <Box>
+              <div style={{ fontSize: 11, fontWeight: 700, color: $.g, marginBottom: 8 }}>Value for Users</div>
+              {PROBLEM.value.customer.map((v, i) => <div key={i} style={{ fontSize: 11, color: $.t2, marginBottom: 3, display: "flex", gap: 5 }}><span style={{ color: $.g }}>→</span>{v}</div>)}
+            </Box>
+            <Box>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#D97706", marginBottom: 8 }}>Value for Business</div>
+              {PROBLEM.value.business.map((v, i) => <div key={i} style={{ fontSize: 11, color: $.t2, marginBottom: 3, display: "flex", gap: 5 }}><span style={{ color: "#D97706" }}>→</span>{v}</div>)}
+            </Box>
+          </div>
+          <Box style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 11, fontWeight: 700 }}>Goal:</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Pill>{PROBLEM.goal.primary}</Pill><span style={{ color: $.t3 }}>→</span><Pill color="#D97706">{PROBLEM.goal.secondary}</Pill><span style={{ color: $.t3 }}>→</span><Pill color="#2563EB">{PROBLEM.goal.outcome}</Pill>
+            </div>
+          </Box>
+
+          <Divider />
+
+          {/* ── VALIDATION ── */}
+          <Heading tag="Research Validation" title="72 respondents + 10 user interviews confirmed the problem is real" />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 7, marginBottom: 14 }}>
+            {SURVEY.map((s, i) => <Box key={i} style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: $.g }}>{s.stat}</div>
+              <div style={{ fontSize: 9, color: $.t2, marginTop: 2, lineHeight: 1.3 }}>{s.text}</div>
+            </Box>)}
+          </div>
+
+          {/* Market */}
+          <div style={{ display: "flex", gap: 7, marginBottom: 6 }}>
+            {MARKET.funnel.map((m, i) => (
+              <Box key={i} style={{ flex: 1, textAlign: "center", position: "relative" }}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: $.t1 }}>{m.val}</div>
+                <div style={{ fontSize: 9, color: $.t3, marginTop: 1 }}>{m.label}</div>
+                {m.sub && <div style={{ fontSize: 8, color: $.g, marginTop: 1 }}>{m.sub}</div>}
+                {i < 3 && <span style={{ position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)", color: $.t3, fontSize: 10 }}>→</span>}
+              </Box>
+            ))}
+          </div>
+          <Box style={{ fontSize: 11, color: $.t2 }}>Platform: <b style={{ color: $.t1 }}>{MARKET.platform.users}</b> existing users — {MARKET.platform.note}</Box>
+
+          <Divider />
+
+          {/* ── WHY NOW ── */}
+          <Heading tag="Why Now" title="The window is open — and it won't stay open long" />
+          <Box style={{ marginBottom: 10 }}>
+            {WHY_NOW.map((w, i) => <div key={i} style={{ fontSize: 12, color: $.t2, lineHeight: 1.5, padding: "4px 0", display: "flex", gap: 8 }}><span style={{ color: $.g, fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>{w}</div>)}
+          </Box>
+
+          <Divider />
+
+          {/* ── SEGMENTS ── */}
+          <Heading tag="User Segments" title="Three distinct segments — one primary driver" desc="Segmented by relationship with music and social sharing behavior. Primary segment chosen by content creation potential and network effect leverage." />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 16 }}>
+            {SEGMENTS.map((seg, i) => (
+              <Box key={i} glow={i === SEG_PRIORITY.winner}>
+                {i === SEG_PRIORITY.winner && <div style={{ fontSize: 8, fontWeight: 700, color: $.g, letterSpacing: 2, textTransform: "uppercase", marginBottom: 5 }}>⭐ Primary Segment</div>}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: seg.color + "16", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>{seg.icon}</div>
+                  <div><div style={{ fontSize: 13, fontWeight: 700 }}>{seg.name}</div><div style={{ fontSize: 9, color: $.t3 }}>{seg.age} · {seg.role}</div></div>
+                </div>
+                <p style={{ fontSize: 11, color: $.t2, lineHeight: 1.4, marginBottom: 8 }}>{seg.who}</p>
+                <div style={{ fontSize: 9, fontWeight: 700, marginBottom: 3 }}>Goals</div>
+                {seg.goals.map((g, j) => <div key={j} style={{ fontSize: 10, color: $.t2, marginBottom: 1, display: "flex", gap: 4 }}><span style={{ color: $.g }}>→</span>{g}</div>)}
+                <div style={{ fontSize: 9, fontWeight: 700, marginTop: 6, marginBottom: 3 }}>Needs</div>
+                {seg.needs.map((n, j) => <div key={j} style={{ fontSize: 10, color: $.t2, marginBottom: 1, display: "flex", gap: 4 }}><span style={{ color: "#2563EB" }}>→</span>{n}</div>)}
+                <div style={{ fontSize: 9, fontWeight: 700, marginTop: 6, marginBottom: 3, color: "#DC2626" }}>Frustrations</div>
+                {seg.frustrations.map((f, j) => (
+                  <div key={j} style={{ fontSize: 10, color: $.t2, marginBottom: 3, display: "flex", gap: 4, alignItems: "flex-start" }}>
+                    <span style={{ color: "#DC2626", flexShrink: 0 }}>•</span>
+                    <div>{f.pain} <span style={{ fontSize: 9, color: $.t3 }}>({f.severity} · {f.freq})</span></div>
+                  </div>
+                ))}
+                <div style={{ fontSize: 9, color: $.t3, borderTop: `1px solid ${$.bd}`, paddingTop: 5, marginTop: 6 }}>TAM: {seg.tam || SEGMENTS[i]?.tam}</div>
+              </Box>
+            ))}
+          </div>
+
+          <Heading tag="Segment Prioritization" title={`Why "${SEGMENTS[SEG_PRIORITY.winner].name}" drives the strategy`} />
+          <Box glow>
+            {SEG_PRIORITY.why.map((w, i) => <div key={i} style={{ fontSize: 12, color: $.t2, lineHeight: 1.5, padding: "3px 0", display: "flex", gap: 8 }}><span style={{ color: $.g, fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>{w}</div>)}
+          </Box>
+
+          <Divider />
+
+          {/* ── PAIN PRIORITY ── */}
+          <Heading tag="Pain Prioritization" title="Impact × Frequency × Solvability" desc="The top pain — no way to share and receive discoveries within Spotify — directly determines the solution." />
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {PAINS.map((p, i) => (
+              <Box key={i} glow={i === 0} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 26, height: 26, borderRadius: 7, background: i === 0 ? $.g + "18" : $.sf, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: i === 0 ? $.g : $.t3, flexShrink: 0 }}>#{i + 1}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>{p.pain}</div>
+                  <div style={{ display: "flex", gap: 8, fontSize: 10, color: $.t3 }}>
+                    <span>Impact <b style={{ color: $.t1 }}>{p.impact}/5</b></span>
+                    <span>Freq <b style={{ color: $.t1 }}>{p.freq}/5</b></span>
+                    <span>Solve <b style={{ color: $.t1 }}>{p.solve}/5</b></span>
+                  </div>
+                </div>
+                <Ring pct={p.score} sz={38} />
+              </Box>
+            ))}
+          </div>
+
+          <Divider />
+
+          {/* ── SOLUTIONS ── */}
+          <Heading tag="Solutions" title="Three approaches evaluated — one clear winner" desc="Scored using (Reach × Impact × Confidence) / Effort. Soundbite Stories wins at 100% — highest impact with medium effort." />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 14 }}>
+            {SOLUTIONS.map((sol, i) => (
+              <Box key={i} glow={sol.winner}>
+                {sol.winner ? <div style={{ fontSize: 8, fontWeight: 700, color: $.g, letterSpacing: 1.5, marginBottom: 4 }}>🏆 WINNER — RICE {sol.score}</div> : <div style={{ fontSize: 8, color: $.t3, marginBottom: 4 }}>RICE {sol.score}</div>}
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><span style={{ fontSize: 17 }}>{sol.icon}</span><div style={{ fontSize: 14, fontWeight: 700 }}>{sol.name}</div></div>
+                <p style={{ fontSize: 11, color: $.t2, lineHeight: 1.4, marginBottom: 8 }}>{sol.what}</p>
+                {[{ l: "Reach", d: sol.rice.reach }, { l: "Impact", d: sol.rice.impact }, { l: "Confidence", d: sol.rice.confidence }, { l: "Effort", d: sol.rice.effort }].map((r, j) => (
+                  <div key={j} style={{ fontSize: 10, marginBottom: 2 }}><span style={{ color: $.t3 }}>{r.l}:</span> <b>{r.d.val}</b> <span style={{ color: $.t3, fontSize: 9 }}>— {r.d.why}</span></div>
+                ))}
+                {sol.winner && sol.how.length > 0 && (
+                  <div style={{ borderTop: `1px solid ${$.bd}`, paddingTop: 7, marginTop: 8, marginBottom: 6 }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, marginBottom: 4 }}>User Flow</div>
+                    {sol.how.map((h, j) => <div key={j} style={{ fontSize: 10, color: $.t2, marginBottom: 1, display: "flex", gap: 4 }}><span style={{ color: $.g, fontWeight: 700 }}>{j + 1}.</span>{h}</div>)}
+                  </div>
+                )}
+                <div style={{ borderTop: `1px solid ${$.bd}`, paddingTop: 7, marginTop: 6 }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, marginBottom: 4 }}>Expected Results</div>
+                  {sol.results.map((r, j) => <div key={j} style={{ fontSize: 10, color: $.t2, marginBottom: 1, display: "flex", gap: 4 }}><span style={{ color: $.g }}>✓</span>{r}</div>)}
+                </div>
+              </Box>
+            ))}
+          </div>
+
+          <Divider />
+
+          {/* ── VALIDATION ── */}
+          <Heading tag="Desirability Validation" title="Landing page test confirmed demand before building" desc={VALIDATION.method} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <Box>
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>Conversion Funnel</div>
+              {VALIDATION.funnel.map((f, i) => (
+                <div key={i} style={{ marginBottom: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}><span style={{ fontSize: 11, fontWeight: 600 }}>{f.stage}</span><span style={{ fontSize: 11, color: $.g, fontWeight: 700 }}>{f.n}</span></div>
+                  <div style={{ height: 5, background: $.sf, borderRadius: 3, overflow: "hidden" }}><div style={{ height: "100%", width: `${(f.n / 378) * 100}%`, background: $.g, borderRadius: 3 }} /></div>
+                  {f.rate && <div style={{ fontSize: 9, color: $.t3, marginTop: 1 }}>↓ {f.rate}</div>}
+                </div>
+              ))}
+              <div style={{ marginTop: 6, padding: 8, background: $.g + "0A", borderRadius: 7, fontSize: 11, color: $.g, fontWeight: 600, textAlign: "center" }}>24.36% conversion = strong desirability signal</div>
+            </Box>
+            <div>
+              <Box style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Analytics</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 5 }}>
+                  {VALIDATION.analytics.map((a, i) => <div key={i} style={{ background: $.sf, borderRadius: 5, padding: 6, textAlign: "center" }}><div style={{ fontSize: 13, fontWeight: 700 }}>{a.v}</div><div style={{ fontSize: 8, color: $.t3, marginTop: 1 }}>{a.l}</div></div>)}
+                </div>
+              </Box>
+              <Box><p style={{ fontSize: 11, color: $.t2, lineHeight: 1.5 }}>{VALIDATION.verdict}</p></Box>
+            </div>
+          </div>
+
+          <Divider />
+
+          {/* ── METRICS ── */}
+          <Heading tag="Success Metrics" title="HEART Framework" />
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 24 }}>
+            {METRICS.map((m, i) => (
+              <Box key={i} style={{ display: "grid", gridTemplateColumns: "75px 1fr 1fr 1.8fr", gap: 10, alignItems: "center" }}>
+                <Pill>{m.cat}</Pill>
+                <div><div style={{ fontSize: 8, color: $.t3 }}>Goal</div><div style={{ fontSize: 11, color: $.t2 }}>{m.goal}</div></div>
+                <div><div style={{ fontSize: 8, color: $.t3 }}>Signals</div><div style={{ fontSize: 10, color: $.t2 }}>{m.signal}</div></div>
+                <div><div style={{ fontSize: 8, color: $.t3 }}>Metrics</div><div style={{ fontSize: 10, color: $.t2 }}>{m.metric}</div></div>
+              </Box>
+            ))}
+          </div>
+
+          <Heading tag="Risks & Mitigation" title="What could go wrong" />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {RISKS.map((r, i) => (
+              <Box key={i}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "#DC2626", marginBottom: 4 }}>⚠ {r.risk}</div>
+                <div style={{ fontSize: 11, color: $.t2, display: "flex", gap: 4 }}><span style={{ color: $.g }}>✓</span>{r.fix}</div>
+              </Box>
+            ))}
+          </div>
+
+          <Divider />
+
+          {/* ── AI ENGINE ── */}
+          <Heading tag="Live AI Demo" title="Taste Match Engine — Powered by Claude API" desc="This chat is a working demo of the social music intelligence layer. It calls Claude's API in real-time to analyze friends' listening patterns and generate personalized discovery insights." />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <AiChat />
+            <Box>
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>How the AI layer works</div>
+              {[
+                { n: "1", t: "Listening Data Ingestion", d: "Real-time stream of plays, skips, repeats, saves, time-of-day patterns", col: "#2563EB" },
+                { n: "2", t: "Taste Vector Embedding", d: "Each user's history becomes a vector. Cosine similarity between vectors = Taste Match %", col: "#7C3AED" },
+                { n: "3", t: "Social Music Graph", d: "Friend connections + taste vectors reveal clusters, trends in your circle, discovery gaps", col: "#D97706" },
+                { n: "4", t: "Smart Soundbite Selection", d: "Audio analysis identifies the most engaging 30-sec segment — the hook, drop, or bridge", col: "#DC2626" },
+                { n: "5", t: "Feed Ranking & Insights", d: "Stories ranked by taste match + novelty. Claude generates natural language insights explaining why", col: $.g },
+              ].map((a, i) => (
+                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 5, background: a.col + "14", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: a.col, flexShrink: 0 }}>{a.n}</div>
+                  <div><div style={{ fontSize: 11, fontWeight: 600, marginBottom: 1 }}>{a.t}</div><div style={{ fontSize: 10, color: $.t2, lineHeight: 1.4 }}>{a.d}</div></div>
+                </div>
+              ))}
+            </Box>
+          </div>
+
+        </div>)}
+
+        {/* ═══════════════════════════════════
+            PROTOTYPE — Interactive demo
+            ═══════════════════════════════════ */}
+        {tab === "proto" && (<div>
+          <Heading tag="Working Prototype" title="Spotify Socials — Soundbite Stories" desc="Stories ranked by Taste Match. Each soundbite is a 30-sec clip auto-selected from the song's most engaging segment. Taste Match % shows listening similarity between you and each friend." />
+
+          {/* Story circles */}
+          <div style={{ display: "flex", gap: 12, marginBottom: 18 }}>
+            {FRIENDS.map(f => (
+              <div key={f.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "pointer" }}>
+                <div style={{ width: 46, height: 46, borderRadius: "50%", background: `linear-gradient(135deg, ${$.g}, #1ed760)`, padding: 2.5 }}>
+                  <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: $.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{f.av}</div>
+                </div>
+                <div style={{ fontSize: 10, color: $.t2 }}>{f.name}</div>
+              </div>
+            ))}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+              <div style={{ width: 46, height: 46, borderRadius: "50%", border: `1.5px dashed ${$.bd}`, display: "flex", alignItems: "center", justifyContent: "center", color: $.t3, fontSize: 14 }}>+</div>
+              <div style={{ fontSize: 10, color: $.t3 }}>You</div>
+            </div>
+          </div>
+
+          {/* AI insights */}
+          <div style={{ display: "flex", gap: 6, marginBottom: 18, flexWrap: "wrap" }}>
+            {[{ t: "🧬 You & Priya: 87% taste match", c: $.g }, { t: "🔥 Anuv Jain trending in your circle", c: "#D97706" }, { t: "💡 You're under-exposed to Lo-fi — friends listen 3×", c: "#2563EB" }].map((ch, i) => (
+              <div key={i} style={{ background: ch.c + "0D", borderRadius: 8, padding: "5px 11px", border: `1px solid ${ch.c}15`, fontSize: 10, color: ch.c, fontWeight: 600, cursor: "pointer" }}>{ch.t}</div>
+            ))}
+          </div>
+
+          {/* Story feed */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 28 }}>
+            {FRIENDS.map(f => (
+              <Box key={f.id}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <div style={{ width: 30, height: 30, borderRadius: "50%", background: `linear-gradient(135deg, ${$.g}, #1ed760)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, border: "1.5px solid #000" }}>{f.av}</div>
+                    <div><div style={{ fontSize: 12, fontWeight: 600 }}>{f.name}</div><div style={{ fontSize: 9, color: $.t3 }}>{f.time}</div></div>
+                  </div>
+                  <Pill color={f.tc}>✨ {f.tag}</Pill>
+                </div>
+                <div style={{ background: $.sf, borderRadius: 8, padding: 10, marginBottom: 7 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600 }}>{f.song}</div>
+                    <Ring pct={f.match} sz={32} />
+                  </div>
+                  <div style={{ fontSize: 9, color: $.t3, marginBottom: 5 }}>Soundbite {f.range} · auto-selected best clip</div>
+                  <Wave />
+                </div>
+                <div style={{ fontSize: 12, color: $.t2, marginBottom: 8 }}>{f.cap}</div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button onClick={() => setLiked(p => ({ ...p, [f.id]: !p[f.id] }))} style={{ background: "none", border: "none", cursor: "pointer", color: liked[f.id] ? "#DC2626" : $.t3, fontSize: 11, fontFamily: font }}>{liked[f.id] ? "❤️" : "🤍"} {f.likes + (liked[f.id] ? 1 : 0)}</button>
+                    <button style={{ background: "none", border: "none", cursor: "pointer", color: $.t3, fontSize: 11, fontFamily: font }}>💬</button>
+                    <button style={{ background: "none", border: "none", cursor: "pointer", color: $.t3, fontSize: 11, fontFamily: font }}>↗️</button>
+                  </div>
+                  <button style={{ background: $.g, color: "#000", border: "none", borderRadius: 12, padding: "3px 10px", fontSize: 10, fontWeight: 700, cursor: "pointer", fontFamily: font }}>+ Playlist</button>
+                </div>
+              </Box>
+            ))}
+          </div>
+
+          {/* Taste match profiles */}
+          <Heading tag="Your Circle" title="Taste Match Profiles" desc="Cosine similarity between your listening vector and each friend's. Recalculated hourly based on real listening behavior." />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+            {FRIENDS.map(f => (
+              <Box key={f.id} style={{ textAlign: "center" }}>
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: $.g + "12", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, margin: "0 auto 5px" }}>{f.av}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>{f.name}</div>
+                <Ring pct={f.match} sz={36} />
+                <div style={{ fontSize: 9, color: $.t3, marginTop: 2 }}>{f.mood}</div>
+                <div style={{ fontSize: 10, color: $.t2, marginTop: 4 }}>♫ {f.song}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", marginTop: 5 }}>
+                  {f.genres.map(g => <Pill key={g}>{g}</Pill>)}
+                </div>
+              </Box>
+            ))}
+          </div>
+        </div>)}
+      </div>
+
+      <div style={{ borderTop: `1px solid ${$.bd}`, padding: "12px 24px", textAlign: "center" }}>
+        <div style={{ fontSize: 9, color: $.t3 }}>Spotify Socials · Product Case Study & AI Prototype · Taste Match Engine powered by Claude API</div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
