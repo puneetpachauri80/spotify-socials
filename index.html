@@ -924,13 +924,13 @@ function App() {
         {tab==="strategy"&&(<div>
 
           <Box glow style={{marginBottom:24}}>
-            <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:$.g,marginBottom:6,textTransform:"uppercase"}}>Strategic Deep Dive</div>
-            <div style={{fontSize:15,fontWeight:700,lineHeight:1.5,marginBottom:6}}>The questions a senior PM or hiring manager would push back on — answered.</div>
-            <div style={{fontSize:12,color:$.t2,lineHeight:1.55}}>Why this format works when Spotify's past social experiments failed · how Soundbite differs from Discover Weekly · the business case in one number · why this won't cannibalise external sharing · and a phased experimentation plan that de-risks the build.</div>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:$.g,marginBottom:6,textTransform:"uppercase"}}>Strategic Analysis</div>
+            <div style={{fontSize:15,fontWeight:700,lineHeight:1.5,marginBottom:6}}>Six dimensions I worked through alongside the case study.</div>
+            <div style={{fontSize:12,color:$.t2,lineHeight:1.55}}>Spotify's history with social features and what's changed since · how this differs from Discover Weekly · the revenue math · whether this cannibalises external sharing · how I'd actually validate the bet · and an honest read on what the research does and doesn't claim.</div>
           </Box>
 
           {/* ─── 1. WHY NOW ─── */}
-          <Heading tag="01 · Why Now" title="Spotify has tried social before — and retreated every time" desc="Facebook integration in 2011. Activity sidebar in 2014. Friend listening panel in 2017. Each time, they pulled back. Understanding why those failed is the first defense of this proposal." />
+          <Heading tag="01 · Why Now" title="Spotify has tried social before — and retreated every time" desc="Facebook integration in 2011. Activity sidebar in 2014. Friend listening panel in 2017. Each time, Spotify pulled back. Before designing anything, I mapped what failed and what's actually changed since." />
 
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:14}}>
             {PAST_ATTEMPTS.map((p,i)=>(
@@ -943,7 +943,7 @@ function App() {
           </div>
 
           <Box glow style={{marginBottom:18}}>
-            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:$.g,marginBottom:8,textTransform:"uppercase"}}>The Format Problem</div>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:$.g,marginBottom:8,textTransform:"uppercase"}}>What I Found</div>
             <p style={{fontSize:13,color:$.t1,lineHeight:1.6}}>{FORMAT_INSIGHT}</p>
           </Box>
 
@@ -961,7 +961,7 @@ function App() {
           <Divider/>
 
           {/* ─── 2. DISCOVER WEEKLY DIFFERENTIATION ─── */}
-          <Heading tag="02 · Differentiation" title={"\"Why doesn't Discover Weekly already solve this?\""} desc="The first question any sharp interviewer asks. The answer isn't that Soundbite outperforms Discover Weekly — it's that they solve different jobs." />
+          <Heading tag="02 · Differentiation" title="How this differs from Discover Weekly" desc="Both use collaborative filtering — Discover Weekly already does it at massive scale. So I needed to be precise about why a friend-graph-constrained version isn't redundant. They solve different user jobs." />
 
           <Box style={{marginBottom:14,padding:0,overflow:"hidden"}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1.5fr 1.5fr",background:$.sf,padding:"10px 14px",fontSize:10,fontWeight:700,letterSpacing:1.5,color:$.t2,textTransform:"uppercase"}}>
@@ -979,14 +979,14 @@ function App() {
           </Box>
 
           <Box glow>
-            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:$.g,marginBottom:8,textTransform:"uppercase"}}>The Insight</div>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:$.g,marginBottom:8,textTransform:"uppercase"}}>The Insight That Came Out Of It</div>
             <p style={{fontSize:13,color:$.t1,lineHeight:1.6}}>{DW_INSIGHT}</p>
           </Box>
 
           <Divider/>
 
           {/* ─── 3. BUSINESS CASE ─── */}
-          <Heading tag="03 · Business Case" title="The number behind the bet — ₹14 Cr / $1.7M annual revenue from India alone" desc="Conservative scenario. Excludes ad uplift, churn reduction, and network-effect compounding." />
+          <Heading tag="03 · Business Case" title="The math — ₹14 Cr / $1.7M annual revenue from India alone" desc="I worked the funnel from India MAU down to incremental premium subscribers under conservative assumptions. The number below excludes ad uplift, churn reduction, and network-effect compounding — those would only add to it." />
 
           <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:7,marginBottom:14}}>
             {BIZ_FUNNEL.map((b,i)=>(
@@ -1011,7 +1011,7 @@ function App() {
           <Divider/>
 
           {/* ─── 4. CANNIBALIZATION ─── */}
-          <Heading tag="04 · Cannibalisation" title={"\"Won't this kill the organic acquisition Spotify gets from Instagram shares?\""} desc="The smartest objection — and the one with the cleanest answer." />
+          <Heading tag="04 · Cannibalisation" title="Whether this kills external Instagram / WhatsApp sharing" desc="External sharing currently drives Spotify's organic acquisition loop. Moving sharing inside the app risks breaking that — unless the two formats serve genuinely different intents. I mapped them side-by-side to test the assumption." />
 
           <Box style={{marginBottom:14,padding:0,overflow:"hidden"}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1.5fr 1.5fr",background:$.sf,padding:"10px 14px",fontSize:10,fontWeight:700,letterSpacing:1.5,color:$.t2,textTransform:"uppercase"}}>
@@ -1029,14 +1029,14 @@ function App() {
           </Box>
 
           <Box glow>
-            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:$.g,marginBottom:8,textTransform:"uppercase"}}>The Wrapped Proof</div>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:$.g,marginBottom:8,textTransform:"uppercase"}}>The Existing Pattern That Confirms It</div>
             <p style={{fontSize:13,color:$.t1,lineHeight:1.6}}>{CANNIBAL_PROOF}</p>
           </Box>
 
           <Divider/>
 
           {/* ─── 5. EXPERIMENTATION PLAN ─── */}
-          <Heading tag="05 · De-risk Plan" title="Three phases. Each gates the next. Total exposure before full build: 6 weeks and 2 engineers." desc="No feature proposal should ship without staged validation. Every phase has a pre-defined go/kill threshold." />
+          <Heading tag="05 · How I'd Validate It" title="Three phases. Each gates the next. Total exposure before full build: 6 weeks and 2 engineers." desc="If I were running this at Spotify, here's the staged plan I'd push for. Each phase has a pre-defined go/kill threshold so the team commits resources only after the previous phase clears the bar." />
 
           <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:6}}>
             {EXPERIMENTS.map((e,i)=>(
@@ -1066,11 +1066,11 @@ function App() {
           <Divider/>
 
           {/* ─── 6. RESEARCH METHODOLOGY ─── */}
-          <Heading tag="06 · Research Honesty" title="What the data tells us — and what it doesn't" desc="Self-initiated research has limits. Naming them is the difference between a directional hypothesis and an over-claimed conclusion." />
+          <Heading tag="06 · What the Research Does and Doesn't Claim" title="An honest read on the evidence base" desc="n=72 surveys plus 10 interviews is a directional sample, not a definitive one. I want to be specific about what the data supports, where I'm extrapolating, and what a properly resourced validation would look like." />
 
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:32}}>
             <Box>
-              <div style={{fontSize:10,fontWeight:700,color:$.g,letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>What I Did</div>
+              <div style={{fontSize:10,fontWeight:700,color:$.g,letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>The Research I Ran</div>
               {RESEARCH_HONEST.done.map((d,i)=>(
                 <div key={i} style={{fontSize:11,color:$.t2,lineHeight:1.5,padding:"4px 0",display:"flex",gap:6}}>
                   <span style={{color:$.g,flexShrink:0}}>✓</span>
@@ -1079,7 +1079,7 @@ function App() {
               ))}
             </Box>
             <Box>
-              <div style={{fontSize:10,fontWeight:700,color:"#D97706",letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>Honest Caveats</div>
+              <div style={{fontSize:10,fontWeight:700,color:"#D97706",letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>How I Read The Signal</div>
               {RESEARCH_HONEST.signal.map((d,i)=>(
                 <div key={i} style={{fontSize:11,color:$.t2,lineHeight:1.5,padding:"4px 0",display:"flex",gap:6}}>
                   <span style={{color:"#D97706",flexShrink:0}}>~</span>
@@ -1088,7 +1088,7 @@ function App() {
               ))}
             </Box>
             <Box>
-              <div style={{fontSize:10,fontWeight:700,color:"#2563EB",letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>What Full Validation Looks Like</div>
+              <div style={{fontSize:10,fontWeight:700,color:"#2563EB",letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>Where I'd Take The Research Next</div>
               {RESEARCH_HONEST.next.map((d,i)=>(
                 <div key={i} style={{fontSize:11,color:$.t2,lineHeight:1.5,padding:"4px 0",display:"flex",gap:6}}>
                   <span style={{color:"#2563EB",flexShrink:0}}>→</span>
@@ -1099,8 +1099,8 @@ function App() {
           </div>
 
           <Box glow style={{textAlign:"center"}}>
-            <div style={{fontSize:11,fontWeight:700,letterSpacing:2.5,color:$.g,marginBottom:8,textTransform:"uppercase"}}>Bottom Line</div>
-            <p style={{fontSize:13,color:$.t1,lineHeight:1.6,maxWidth:680,margin:"0 auto"}}>The research is a well-grounded directional signal — not a definitive conclusion. The phased experimentation plan above is designed to close that gap before any significant investment.</p>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2.5,color:$.g,marginBottom:8,textTransform:"uppercase"}}>Where I Landed</div>
+            <p style={{fontSize:13,color:$.t1,lineHeight:1.6,maxWidth:680,margin:"0 auto"}}>The research gave me a well-grounded directional signal — strong enough to design against, not strong enough to ship against. That's why the experimentation plan above stages the build behind go/kill thresholds rather than going straight to full rollout.</p>
           </Box>
 
         </div>)}
