@@ -111,6 +111,105 @@ const WHY_NOW = [
   "Audio-first content (podcasts, voice notes) is a proven format — Soundbites extend this naturally",
 ];
 
+// ═══════════════════════════════════════════
+//  STRATEGIC DEEP DIVE — DIRECTOR-LEVEL DEPTH
+// ═══════════════════════════════════════════
+
+const PAST_ATTEMPTS = [
+  {year:"2011", what:"Facebook real-time feed integration", outcome:"Retreated"},
+  {year:"2014", what:"Activity sidebar — live listening", outcome:"Removed from default UI"},
+  {year:"2017", what:"Friend listening panel", outcome:"Marginalised, then deprecated"},
+];
+
+const FORMAT_INSIGHT = "Every previous attempt was passive — surfacing what friends were listening to in real-time felt like surveillance, not social. Soundbite Stories flips this: users share what they choose to share, in 30-second clips they control. Audio-first, ephemeral, intentional.";
+
+const WHAT_CHANGED = [
+  {title:"Short-form audio is now mainstream", detail:"WhatsApp voice notes, Instagram audio clips, and Spotify's own podcast clips have normalised sharing audio in bite-sized, intentional formats."},
+  {title:"Spotify's own data proves ephemeral works", detail:"Wrapped and Blend consistently drive the company's highest engagement spikes of the year — both time-boxed, personal, and shareable."},
+  {title:"Catalog and algorithm have become commodities", detail:"Apple Music and YouTube Music have near-identical catalogues. Recommendations are converging. The only durable differentiator left is a social graph Spotify isn't using."},
+];
+
+const VS_DISCOVER_WEEKLY = [
+  {dim:"Signal source", dw:"600M+ anonymous users", ss:"Your social graph (~50–200 friends)"},
+  {dim:"Trust mechanism", dw:'Platform authority — "Spotify thinks…"', ss:'Social proof — "Priya shared this"'},
+  {dim:"Discovery mode", dw:"Passive — pushed to you weekly", ss:"Active — you browse a friends-feed"},
+  {dim:"Switching cost", dw:"None — Apple Music has its own algo", ss:"High — your friend graph is unique to Spotify"},
+  {dim:"User job solved", dw:'"What might I like?"', ss:'"Who should I trust for new music?"'},
+];
+
+const DW_INSIGHT = "Users don't distrust the algorithm's accuracy. They distrust its anonymity. 65% of surveyed users repeat songs not because the recommendations are wrong — but because there's no human face behind them. Friend-graph signal is sparse but high-trust. Algorithmic signal is dense but anonymous. They're complementary, not competitive.";
+
+const BIZ_FUNNEL = [
+  {label:"Spotify India MAU", val:"100M+", note:"Fastest-growing market"},
+  {label:"Target segment", val:"~40M", note:"18–28, social-active"},
+  {label:"Incremental retained", val:"1.2M", note:"per monthly cohort @ 3% D30 lift"},
+  {label:"Premium converts", val:"~100K", note:"@ 8–10% India conversion rate"},
+  {label:"Annual revenue", val:"₹14 Cr / $1.7M", note:"₹119/mo × 100K incremental subs"},
+];
+
+const BIZ_NOTES = [
+  "Build cost: ₹3–4 Cr fully loaded — 6–8 person team for 2 quarters (2 BE, 2 FE, 1 ML, 1 design, 1 PM, 0.5 QA).",
+  "Payback period: under 4 months on conservative assumptions.",
+  "Excluded upside: ad-impression uplift from longer sessions, churn reduction in months 3–6 (Spotify India's highest drop-off window), and network-effect compounding as more friends join.",
+];
+
+const CANNIBAL = [
+  {dim:"Intent", ext:"Performative — broadcasting taste", ss:"Intimate — sharing with trusted taste"},
+  {dim:"Audience", ext:"Public followers, broad contacts", ss:"Close friends with compatible taste"},
+  {dim:"Receiver value", ext:'Identity signal — "this person listens to X"', ss:'Discovery signal — "someone like me found this"'},
+  {dim:"Spotify value", ext:"Organic acquisition (new users)", ss:"Retention + engagement (existing users)"},
+];
+
+const CANNIBAL_PROOF = "Spotify Wrapped is the proof. Wrapped drives massive external sharing on Instagram AND in-app engagement simultaneously — the two surfaces don't cannibalize, they compound. Soundbite serves the discovery intent. Instagram serves the identity intent. They coexist. If anything, Soundbite creates a reason to keep sharing externally — \"check out my Soundbite feed on Spotify\" becomes a new organic acquisition channel.";
+
+const EXPERIMENTS = [
+  {
+    phase:"Phase 1",
+    name:"Fake-Door Test",
+    duration:"2 weeks",
+    cost:"0 engineering hours — config + analytics event",
+    what:'Add "Share as Soundbite" button in the existing share sheet for 5% of India users (18–28 segment). Button opens a modal explaining the feature is coming soon and captures interest.',
+    go:">2% tap rate on the button",
+    kill:"<0.5% tap rate",
+  },
+  {
+    phase:"Phase 2",
+    name:"MVP Beta",
+    duration:"4 weeks",
+    cost:"2 engineers",
+    what:"Minimal Soundbite with manual segment selection (user picks the 30-sec clip, no auto-detection). No Taste Match ranking yet — chronological feed only. Roll out to 10K users in Bangalore.",
+    go:">15% weekly active sharers AND >10% discovery rate",
+    kill:"<5% weekly active sharers OR no measurable retention delta",
+  },
+  {
+    phase:"Phase 3",
+    name:"Full Build",
+    duration:"8 weeks",
+    cost:"Full team",
+    what:"Add Taste Match ranking, ML-driven auto-segment detection (model trained on skip/replay patterns to identify hooks), full India rollout.",
+    go:"Statistically significant retention lift ≥2% at p<0.05",
+    kill:"No D30 lift after 6 weeks of post-launch measurement",
+  },
+];
+
+const RESEARCH_HONEST = {
+  done:[
+    "72 structured surveys (18–28, India, English-speaking, active Spotify users)",
+    "10 in-depth user interviews (30–45 min each, semi-structured)",
+    "Competitive analysis: Spotify, Apple Music, YouTube Music, Instagram Music, SoundCloud",
+  ],
+  signal:[
+    "Directional signals strong enough to warrant quantitative validation before build",
+    "65% trust-deficit finding is self-reported (n=72) — directionally meaningful, not statistically definitive",
+    "70% external-sharing preference is consistent with Spotify's publicly reported Wrapped engagement data",
+  ],
+  next:[
+    "5,000-user quantitative survey across Delhi, Mumbai, Bangalore — stratified by age, gender, subscription tier",
+    "Behavioural log analysis: actual skip rates, repeat-listen patterns, share-to-listen conversion",
+    "Cross-market comparison — does the trust deficit replicate in US/EU, or is it India-specific?",
+  ],
+};
+
 const SURVEY = [
   {stat:"70%",text:"want to interact about music with friends"},
   {stat:"66%",text:"interact with friends daily/weekly about music"},
@@ -471,8 +570,8 @@ function App() {
           </div>
           <h1 style={{fontSize:28,fontWeight:900,letterSpacing:-0.8,marginBottom:4}}>Spotify Socials</h1>
           <p style={{fontSize:13,color:$.t2,maxWidth:500,lineHeight:1.45,marginBottom:14}}>Turning Spotify's social graph and listening data into an AI-powered music discovery engine — driven by friends, not just algorithms.</p>
-          <div style={{display:"flex",gap:3,background:$.sf,borderRadius:9,padding:3,maxWidth:300}}>
-            {[{id:"proto",l:"📱 Prototype"},{id:"case",l:"📋 Case Study"}].map(t=>(
+          <div style={{display:"flex",gap:3,background:$.sf,borderRadius:9,padding:3,maxWidth:430}}>
+            {[{id:"proto",l:"📱 Prototype"},{id:"case",l:"📋 Case Study"},{id:"strategy",l:"🎯 Strategy"}].map(t=>(
               <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"7px 12px",borderRadius:7,border:"none",cursor:"pointer",fontFamily:font,background:tab===t.id?$.cd:"transparent",color:tab===t.id?$.t1:$.t3,fontSize:12,fontWeight:600,transition:"all .15s"}}>{t.l}</button>
             ))}
           </div>
@@ -816,6 +915,193 @@ function App() {
               ))}
             </Box>
           </div>
+
+        </div>)}
+
+        {/* ═══════════════════════════════════
+            STRATEGY TAB — DIRECTOR-LEVEL DEPTH
+            ═══════════════════════════════════ */}
+        {tab==="strategy"&&(<div>
+
+          <Box glow style={{marginBottom:24}}>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:$.g,marginBottom:6,textTransform:"uppercase"}}>Strategic Deep Dive</div>
+            <div style={{fontSize:15,fontWeight:700,lineHeight:1.5,marginBottom:6}}>The questions a senior PM or hiring manager would push back on — answered.</div>
+            <div style={{fontSize:12,color:$.t2,lineHeight:1.55}}>Why this format works when Spotify's past social experiments failed · how Soundbite differs from Discover Weekly · the business case in one number · why this won't cannibalise external sharing · and a phased experimentation plan that de-risks the build.</div>
+          </Box>
+
+          {/* ─── 1. WHY NOW ─── */}
+          <Heading tag="01 · Why Now" title="Spotify has tried social before — and retreated every time" desc="Facebook integration in 2011. Activity sidebar in 2014. Friend listening panel in 2017. Each time, they pulled back. Understanding why those failed is the first defense of this proposal." />
+
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:14}}>
+            {PAST_ATTEMPTS.map((p,i)=>(
+              <Box key={i}>
+                <div style={{fontSize:9,fontWeight:700,color:"#DC2626",letterSpacing:1.5,marginBottom:4,textTransform:"uppercase"}}>↩ {p.year}</div>
+                <div style={{fontSize:13,fontWeight:700,marginBottom:6,lineHeight:1.35}}>{p.what}</div>
+                <div style={{fontSize:11,color:$.t2,fontStyle:"italic"}}>{p.outcome}</div>
+              </Box>
+            ))}
+          </div>
+
+          <Box glow style={{marginBottom:18}}>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:$.g,marginBottom:8,textTransform:"uppercase"}}>The Format Problem</div>
+            <p style={{fontSize:13,color:$.t1,lineHeight:1.6}}>{FORMAT_INSIGHT}</p>
+          </Box>
+
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:$.t2,marginBottom:10,textTransform:"uppercase"}}>What's Changed Since</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:6}}>
+            {WHAT_CHANGED.map((w,i)=>(
+              <Box key={i}>
+                <div style={{width:24,height:24,borderRadius:6,background:$.g+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,color:$.g,marginBottom:8}}>{i+1}</div>
+                <div style={{fontSize:12,fontWeight:700,marginBottom:5,lineHeight:1.35}}>{w.title}</div>
+                <div style={{fontSize:11,color:$.t2,lineHeight:1.5}}>{w.detail}</div>
+              </Box>
+            ))}
+          </div>
+
+          <Divider/>
+
+          {/* ─── 2. DISCOVER WEEKLY DIFFERENTIATION ─── */}
+          <Heading tag="02 · Differentiation" title={"\"Why doesn't Discover Weekly already solve this?\""} desc="The first question any sharp interviewer asks. The answer isn't that Soundbite outperforms Discover Weekly — it's that they solve different jobs." />
+
+          <Box style={{marginBottom:14,padding:0,overflow:"hidden"}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1.5fr 1.5fr",background:$.sf,padding:"10px 14px",fontSize:10,fontWeight:700,letterSpacing:1.5,color:$.t2,textTransform:"uppercase"}}>
+              <div>Dimension</div>
+              <div>Discover Weekly</div>
+              <div style={{color:$.g}}>Soundbite Stories</div>
+            </div>
+            {VS_DISCOVER_WEEKLY.map((row,i)=>(
+              <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1.5fr 1.5fr",padding:"12px 14px",borderTop:`1px solid ${$.bd}`,fontSize:11,alignItems:"start",gap:10}}>
+                <div style={{fontWeight:700,color:$.t1}}>{row.dim}</div>
+                <div style={{color:$.t2,lineHeight:1.45}}>{row.dw}</div>
+                <div style={{color:$.t1,lineHeight:1.45,fontWeight:500}}>{row.ss}</div>
+              </div>
+            ))}
+          </Box>
+
+          <Box glow>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:$.g,marginBottom:8,textTransform:"uppercase"}}>The Insight</div>
+            <p style={{fontSize:13,color:$.t1,lineHeight:1.6}}>{DW_INSIGHT}</p>
+          </Box>
+
+          <Divider/>
+
+          {/* ─── 3. BUSINESS CASE ─── */}
+          <Heading tag="03 · Business Case" title="The number behind the bet — ₹14 Cr / $1.7M annual revenue from India alone" desc="Conservative scenario. Excludes ad uplift, churn reduction, and network-effect compounding." />
+
+          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:7,marginBottom:14}}>
+            {BIZ_FUNNEL.map((b,i)=>(
+              <Box key={i} glow={i===4} style={{textAlign:"center",position:"relative"}}>
+                <div style={{fontSize:8,fontWeight:700,color:$.t3,letterSpacing:1.2,marginBottom:5,textTransform:"uppercase"}}>{b.label}</div>
+                <div style={{fontSize:i===4?15:18,fontWeight:800,color:i===4?$.g:$.t1,lineHeight:1.2}}>{b.val}</div>
+                <div style={{fontSize:9,color:$.t3,marginTop:4,lineHeight:1.4}}>{b.note}</div>
+                {i<4&&<span style={{position:"absolute",right:-7,top:"50%",transform:"translateY(-50%)",color:$.t3,fontSize:11,zIndex:2}}>→</span>}
+              </Box>
+            ))}
+          </div>
+
+          <Box style={{marginBottom:6}}>
+            {BIZ_NOTES.map((n,i)=>(
+              <div key={i} style={{display:"flex",gap:8,fontSize:11,color:$.t2,lineHeight:1.55,padding:"4px 0"}}>
+                <span style={{color:$.g,fontWeight:700,flexShrink:0}}>→</span>
+                <span>{n}</span>
+              </div>
+            ))}
+          </Box>
+
+          <Divider/>
+
+          {/* ─── 4. CANNIBALIZATION ─── */}
+          <Heading tag="04 · Cannibalisation" title={"\"Won't this kill the organic acquisition Spotify gets from Instagram shares?\""} desc="The smartest objection — and the one with the cleanest answer." />
+
+          <Box style={{marginBottom:14,padding:0,overflow:"hidden"}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1.5fr 1.5fr",background:$.sf,padding:"10px 14px",fontSize:10,fontWeight:700,letterSpacing:1.5,color:$.t2,textTransform:"uppercase"}}>
+              <div>Dimension</div>
+              <div>External Sharing (IG, WA)</div>
+              <div style={{color:$.g}}>Soundbite Stories</div>
+            </div>
+            {CANNIBAL.map((row,i)=>(
+              <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1.5fr 1.5fr",padding:"12px 14px",borderTop:`1px solid ${$.bd}`,fontSize:11,alignItems:"start",gap:10}}>
+                <div style={{fontWeight:700,color:$.t1}}>{row.dim}</div>
+                <div style={{color:$.t2,lineHeight:1.45}}>{row.ext}</div>
+                <div style={{color:$.t1,lineHeight:1.45,fontWeight:500}}>{row.ss}</div>
+              </div>
+            ))}
+          </Box>
+
+          <Box glow>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:$.g,marginBottom:8,textTransform:"uppercase"}}>The Wrapped Proof</div>
+            <p style={{fontSize:13,color:$.t1,lineHeight:1.6}}>{CANNIBAL_PROOF}</p>
+          </Box>
+
+          <Divider/>
+
+          {/* ─── 5. EXPERIMENTATION PLAN ─── */}
+          <Heading tag="05 · De-risk Plan" title="Three phases. Each gates the next. Total exposure before full build: 6 weeks and 2 engineers." desc="No feature proposal should ship without staged validation. Every phase has a pre-defined go/kill threshold." />
+
+          <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:6}}>
+            {EXPERIMENTS.map((e,i)=>(
+              <Box key={i} glow={i===0}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+                  <div style={{width:34,height:34,borderRadius:8,background:$.g+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,color:$.g,flexShrink:0}}>{i+1}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:9,fontWeight:700,color:$.t3,letterSpacing:1.5,textTransform:"uppercase"}}>{e.phase} · {e.duration} · {e.cost}</div>
+                    <div style={{fontSize:14,fontWeight:700,marginTop:2}}>{e.name}</div>
+                  </div>
+                </div>
+                <p style={{fontSize:11,color:$.t2,lineHeight:1.55,marginBottom:10}}>{e.what}</p>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                  <div style={{background:$.g+"0E",borderRadius:7,padding:"8px 10px",border:`1px solid ${$.g}30`}}>
+                    <div style={{fontSize:9,fontWeight:700,color:$.g,letterSpacing:1.5,marginBottom:3,textTransform:"uppercase"}}>✓ Go signal</div>
+                    <div style={{fontSize:11,color:$.t1,lineHeight:1.4}}>{e.go}</div>
+                  </div>
+                  <div style={{background:"#DC26260E",borderRadius:7,padding:"8px 10px",border:`1px solid #DC262630`}}>
+                    <div style={{fontSize:9,fontWeight:700,color:"#DC2626",letterSpacing:1.5,marginBottom:3,textTransform:"uppercase"}}>✕ Kill signal</div>
+                    <div style={{fontSize:11,color:$.t1,lineHeight:1.4}}>{e.kill}</div>
+                  </div>
+                </div>
+              </Box>
+            ))}
+          </div>
+
+          <Divider/>
+
+          {/* ─── 6. RESEARCH METHODOLOGY ─── */}
+          <Heading tag="06 · Research Honesty" title="What the data tells us — and what it doesn't" desc="Self-initiated research has limits. Naming them is the difference between a directional hypothesis and an over-claimed conclusion." />
+
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:32}}>
+            <Box>
+              <div style={{fontSize:10,fontWeight:700,color:$.g,letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>What I Did</div>
+              {RESEARCH_HONEST.done.map((d,i)=>(
+                <div key={i} style={{fontSize:11,color:$.t2,lineHeight:1.5,padding:"4px 0",display:"flex",gap:6}}>
+                  <span style={{color:$.g,flexShrink:0}}>✓</span>
+                  <span>{d}</span>
+                </div>
+              ))}
+            </Box>
+            <Box>
+              <div style={{fontSize:10,fontWeight:700,color:"#D97706",letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>Honest Caveats</div>
+              {RESEARCH_HONEST.signal.map((d,i)=>(
+                <div key={i} style={{fontSize:11,color:$.t2,lineHeight:1.5,padding:"4px 0",display:"flex",gap:6}}>
+                  <span style={{color:"#D97706",flexShrink:0}}>~</span>
+                  <span>{d}</span>
+                </div>
+              ))}
+            </Box>
+            <Box>
+              <div style={{fontSize:10,fontWeight:700,color:"#2563EB",letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>What Full Validation Looks Like</div>
+              {RESEARCH_HONEST.next.map((d,i)=>(
+                <div key={i} style={{fontSize:11,color:$.t2,lineHeight:1.5,padding:"4px 0",display:"flex",gap:6}}>
+                  <span style={{color:"#2563EB",flexShrink:0}}>→</span>
+                  <span>{d}</span>
+                </div>
+              ))}
+            </Box>
+          </div>
+
+          <Box glow style={{textAlign:"center"}}>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2.5,color:$.g,marginBottom:8,textTransform:"uppercase"}}>Bottom Line</div>
+            <p style={{fontSize:13,color:$.t1,lineHeight:1.6,maxWidth:680,margin:"0 auto"}}>The research is a well-grounded directional signal — not a definitive conclusion. The phased experimentation plan above is designed to close that gap before any significant investment.</p>
+          </Box>
 
         </div>)}
       </div>
