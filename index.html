@@ -147,12 +147,6 @@ const BIZ_FUNNEL = [
   {label:"Annual revenue", val:"₹14 Cr / $1.7M", note:"₹119/mo × 100K incremental subs"},
 ];
 
-const BIZ_NOTES = [
-  "Build cost: ₹3–4 Cr fully loaded — 6–8 person team for 2 quarters (2 BE, 2 FE, 1 ML, 1 design, 1 PM, 0.5 QA).",
-  "Payback period: under 4 months on conservative assumptions.",
-  "Excluded upside: ad-impression uplift from longer sessions, churn reduction in months 3–6 (Spotify India's highest drop-off window), and network-effect compounding as more friends join.",
-];
-
 const CANNIBAL = [
   {dim:"Intent", ext:"Performative — broadcasting taste", ss:"Intimate — sharing with trusted taste"},
   {dim:"Audience", ext:"Public followers, broad contacts", ss:"Close friends with compatible taste"},
@@ -998,15 +992,6 @@ function App() {
               </Box>
             ))}
           </div>
-
-          <Box style={{marginBottom:6}}>
-            {BIZ_NOTES.map((n,i)=>(
-              <div key={i} style={{display:"flex",gap:8,fontSize:11,color:$.t2,lineHeight:1.55,padding:"4px 0"}}>
-                <span style={{color:$.g,fontWeight:700,flexShrink:0}}>→</span>
-                <span>{n}</span>
-              </div>
-            ))}
-          </Box>
 
           <Divider/>
 
